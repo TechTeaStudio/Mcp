@@ -1,0 +1,76 @@
+<Project>
+
+  <!-- Shared by every project in the solution. Package identity and description stay in the
+       individual .csproj files; everything uniform lives here so the two packable projects
+       cannot drift apart in version, target frameworks or packaging settings. -->
+
+  <PropertyGroup>
+    <!-- NO <Version> HERE. The org-wide publish workflow reads each package's version by
+         grepping the .csproj text for a literal <Version> tag:
+             VERSION=$(grep -Po '(?<=<Version>)[^<]+' "$proj" || true)
+             if [[ -z "$VERSION" ]]; then echo "Skipping $proj"; continue; fi
+         It never asks MSBuild, so a version set here is invisible to it and every project is
+         silently skipped - nothing gets packed and the release goes out empty. Each packable
+         .csproj therefore carries its own <Version>, and they must be bumped together. -->
+    <Authors>Ronald Ryan</Authors>
+    <Company>Tech Tea Studio</Company>
+    <Copyright>Copyright © Tech Tea Studio 2026</Copyright>
+    <PackageProjectUrl>https://github.com/TechTeaStudio/Mcp</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/TechTeaStudio/Mcp</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- net6.0 and net7.0 are out of support upstream; they are carried so hosts stuck on an older
+         runtime can still adopt the conventions. The MCP SDK has no net6/net7 build, so those two
+         legs compile against its netstandard2.0 assets. The SDK downloads the matching reference
+         packs from NuGet, so no old SDK needs to be installed to build them. -->
+    <TargetFrameworks>net6.0;net7.0;net8.0;net9.0;net10.0;net11.0</TargetFrameworks>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
+    <!-- The MCP SDK pulls Microsoft.Extensions.* and System.Text.Json 10.x, whose buildTransitive
+         targets warn "doesn't support net6.0/net7.0 and has not been tested with it". The
+         netstandard2.0 assets do load there; the warning is advice, and under CI's
+         warnings-as-errors it would fail every net6/net7 build. -->
+    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591;CS1573;CS1574</NoWarn>
+    <!-- The same source compiles six times, so a warning that fires on one old framework only is
+         one line in a long log - easy to scroll past. Fatal on the build server; left as warnings
+         locally so iteration stays fast. -->
+    <TreatWarningsAsErrors Condition="'$(GITHUB_ACTIONS)' == 'true'">true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Deliberately NO GeneratePackageOnBuild: packing is one explicit Release step, CI runs it
+         that way, and dotnet test does not repack every nupkg. -->
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <!-- Debugging into the package: SourceLink for GitHub ships inside the SDK since 8.0.100,
+         so these properties are the whole setup - no PackageReference required. -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <!-- Byte-identical output for a given commit, but only on the build server: enabling it
+         locally rewrites source paths and breaks step-through debugging in the IDE. -->
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+    <Deterministic>true</Deterministic>
+    <!-- Fails the pack if a target framework drops public API that an older one exposes. The
+         rule it enforces: a newer target may add API, never drop it. -->
+    <EnablePackageValidation>true</EnablePackageValidation>
+  </PropertyGroup>
+
+  <!-- Files packed identically into both packages. Paths are anchored to this file, so adding a
+       package folder does not mean counting ..\ levels again. -->
+  <ItemGroup Condition="'$(IsPackable)' != 'false'">
+    <None Include="$(MSBuildThisFileDirectory)TechTeaStudio.Mcp\icon.png" Pack="true" PackagePath="\" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)..\README.md" Pack="true" PackagePath="\" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)..\CHANGELOG.md" Pack="true" PackagePath="\" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)..\LICENSE" Pack="true" PackagePath="\" Visible="false" />
+  </ItemGroup>
+
+</Project>

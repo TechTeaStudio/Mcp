@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>TechTeaStudio.Mcp</PackageId>
+    <!-- Must be a literal tag in this file - the publish workflow greps for it. Keep in sync
+         with TechTeaStudio.Mcp.Testing.csproj; see the note in Directory.Build.props. -->
+    <Version>0.1.0</Version>
+    <Description>Studio conventions for Model Context Protocol servers built on the official C# SDK. One AddStudioMcp call gives a server its name, title and instructions, JSON that keeps non-Latin text readable and enums in the schema, schema-checked arguments with errors a model can act on, clean refusals instead of the SDK's generic wrapper, per-caller rate limits, a result size budget, call observers and OpenTelemetry metrics. Tools stay plain [McpServerTool] methods. Targets net6.0 through net11.0.</Description>
+    <PackageTags>mcp;model-context-protocol;ai;llm;agents;claude;chatgpt;tools;conventions;TechTeaStudio</PackageTags>
+    <PackageReleaseNotes>v0.1.0: First release. AddStudioMcp with required name, title and instructions; StudioMcpJson (snake_case or camelCase, relaxed escaping, string enums in the schema, nulls omitted); a call pipeline with argument checks against the input schema (unknown arguments refused, a null takes the default), refusals without the SDK prefix, a generic message for unexpected failures, per-caller rate limits keyed by the readOnly annotation, a result size budget that never refuses a write, IMcpCallObserver and the TechTeaStudio.Mcp meter; output schemas that no longer require fields the JSON leaves out when null.
+
+Full changelog: https://github.com/TechTeaStudio/Mcp/blob/product/CHANGELOG.md</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- A floor, not a pin: the version both studio servers run on and the one the pipeline is tested
+         against. The pipeline rests on request filters that see the matched tool
+         (RequestContext.MatchedPrimitive). -->
+    <PackageReference Include="ModelContextProtocol" Version="2.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="TechTeaStudio.Mcp.Tests" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>TechTeaStudio.Mcp.Testing</PackageId>
+    <!-- Must be a literal tag in this file - the publish workflow greps for it. Keep in sync
+         with TechTeaStudio.Mcp.csproj; see the note in Directory.Build.props. -->
+    <Version>0.1.0</Version>
+    <Description>Contract checks for Model Context Protocol servers, run from any test framework. McpContract connects as a client and reports what a model would trip over: no title or instructions, the product never named, tools and prompts without descriptions or annotations, enumerations and ranges written in prose instead of the schema, long dashes, errors returned as success, crashes passed off as refusals, the SDK's generic error text, escaped non-Latin text, answers over budget, structured content that breaks its own output schema and instructions naming tools that are gone. McpTestServer runs any server in memory. Works with servers built on the bare C# SDK or on TechTeaStudio.Mcp. Targets net6.0 through net11.0.</Description>
+    <PackageTags>mcp;model-context-protocol;testing;contract;ai;llm;agents;claude;chatgpt;TechTeaStudio</PackageTags>
+    <PackageReleaseNotes>v0.1.0: First release. McpContract.CheckAsync with 26 rules (TTS-MCP-001 to TTS-MCP-026) over the server, its tools, prompts and instructions, probes that call tools and check the answers (ProbeError tells a crash from a refusal), per-rule and per-target waivers and severity overrides, McpContractReport.EnsureNoErrors for any test framework; McpTestServer for in-memory servers and McpTestClient for remote ones.
+
+Full changelog: https://github.com/TechTeaStudio/Mcp/blob/product/CHANGELOG.md</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Deliberately no reference to TechTeaStudio.Mcp: the contract is checked from the client
+         side, so it judges a server built on the bare SDK exactly like a studio one. -->
+    <PackageReference Include="ModelContextProtocol" Version="2.4.0" />
+    <!-- BuildServiceProvider for McpTestServer. System.IO.Pipelines (its in-memory transport) is not
+         listed: the SDK already brings it on every target, at a version a direct reference here would
+         only be able to downgrade (NU1605). -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+  </ItemGroup>
+
+</Project>

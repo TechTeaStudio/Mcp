@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- Overrides the solution-wide net6.0-net11.0 set: only the 8/9/10/11 runtimes are installed in
+         CI. The net6.0/net7.0 legs of the packages compile in CI and run against the SDK's
+         netstandard2.0 assets, which the net8.0 leg here does not exercise. -->
+    <TargetFrameworks>net8.0;net9.0;net10.0;net11.0</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TechTeaStudio.Mcp\TechTeaStudio.Mcp.csproj" />
+    <ProjectReference Include="..\..\TechTeaStudio.Mcp.Testing\TechTeaStudio.Mcp.Testing\TechTeaStudio.Mcp.Testing.csproj" />
+  </ItemGroup>
+</Project>
